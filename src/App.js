@@ -1,6 +1,7 @@
 import React, { Component} from 'react';
 import './App.css';
-import MovieRow from './MovieRow.js'
+import MovieRow from './MovieRow'
+import $ from 'jquery'
 
 
 
@@ -10,26 +11,60 @@ import MovieRow from './MovieRow.js'
 class App extends Component {
   constructor(props){
     super(props)
-    console.log('this is my initializer')
+    this.state = {}
+//     console.log('this is my initializer')
 
-    const movies = [
-      {id: 0, poster_src: 'http://www.gstatic.com/tv/thumb/v22vodart/12863030/p12863030_v_v8_ah.jpg', title:'Avengers: Infinity War', overview: 'heroes fighting thanos'},
-      {id: 1, poster_src: ' http://www.gstatic.com/tv/thumb/v22vodart/12863030/p12863030_v_v8_ah.jpg', title:'The Avengers', overview: 'superheroes teaming up to fight bad guys'},
-    ]
+//     const movies = [
+//       {id: 0, poster_src: 'http://www.gstatic.com/tv/thumb/v22vodart/12863030/p12863030_v_v8_ah.jpg', title:'Avengers: Infinity War', overview: 'heroes fighting thanos'},
+//       {id: 1, poster_src: ' http://www.gstatic.com/tv/thumb/v22vodart/12863030/p12863030_v_v8_ah.jpg', title:'The Avengers', overview: 'superheroes teaming up to fight bad guys'},
+//     ]
 
-  
+//     let movieRows = []
+//     movies.forEach((movie) => {
+//       console.log(movie.title)
+//       const movieRow = <MovieRow movie={movie} />
+//       movieRows.push(movieRow)
+//     })
 
-    let movieRows = []
-    movies.forEach((movie) => {
-      console.log(movie.title)
-      const movieRow = <MovieRow movie={movie} />
-      
-     
-      movieRows.push(movieRow)
-    })
+//     this.state = {rows: movieRows}
 
-    this.state = {rows: movieRows}
+
+this.performSearch ("ant man")
+
 }
+
+performSearch(searchTerm){
+  console.log('performan search using moviedb')
+  const urlString = "https://api.themoviedb.org/3/search/movie?api_key=43c548179cb686e08a403c19076966e3&query=" + searchTerm
+  $.ajax({
+    url:urlString,
+    success: (searchResults) => {
+      console.log('fetched data successfully')
+      console.log(searchResults)
+      const results = searchResults.results
+
+      var movieRows = []
+
+      results.forEach((movie) => {
+        movie.poster_src= "https://image.tmdb.org/t/p/w185" + movie.poster_path
+        console.log(movie.title)
+        console.log(movie.poster_path)
+        const movieRow = <MovieRow key={movie.id} movie={movie}/>
+        movieRows.push(movieRow)
+      })
+
+      this.setState({rows: movieRows})
+    },
+  })
+}
+
+searchChangeHandler(event) {
+  console.log(event.target.value)
+  const boundObject = this
+  const searchTerm = event.target.value
+  boundObject.performSearch(searchTerm)
+}
+
 
 render() {
   return (
@@ -55,8 +90,8 @@ render() {
         paddingTop: 8,
         paddingBottom: 8,
         paddingLeft: 16
-      }}
-        placeholder='enter search term'/>
+      }} 
+        onChange={this.searchChangeHandler.bind(this)} placeholder="enter search here"/>
     
     {this.state.rows}
       
